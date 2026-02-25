@@ -5,18 +5,21 @@ export const MoneyPowerCard = () => {
     const customData = financeState.customBgData;
     
     const PRESET_IMAGES = [
-        '/Solitary Cabin on Hill.png',
-        '/Serene Landscape Scene.png',
-        '/Majestic Mountain Scene.png',
-        '/Urban Serenity Scene.png'
+        'Solitary Cabin on Hill.png',
+        'Serene Landscape Scene.png',
+        'Majestic Mountain Scene.png',
+        'Urban Serenity Scene.png'
     ];
 
     let bgContent = '';
+    // Normalize bgType to remove leading slashes (fixes path issues on GitHub Pages)
+    const normalizedBgType = (typeof bgType === 'string' && bgType.startsWith('/')) ? bgType.substring(1) : bgType;
+
     // Handle legacy 'image' value or specific preset paths
-    if (bgType === 'image' || bgType === PRESET_IMAGES[0]) {
+    if (normalizedBgType === 'image' || normalizedBgType === PRESET_IMAGES[0]) {
         bgContent = `<img src="${PRESET_IMAGES[0]}" class="w-full h-full object-cover filter brightness-[1.15] contrast-[1.1]" alt="background">`;
-    } else if (PRESET_IMAGES.includes(bgType)) {
-        bgContent = `<img src="${bgType}" class="w-full h-full object-cover filter brightness-[1.15] contrast-[1.1]" alt="background">`;
+    } else if (PRESET_IMAGES.includes(normalizedBgType)) {
+        bgContent = `<img src="${normalizedBgType}" class="w-full h-full object-cover filter brightness-[1.15] contrast-[1.1]" alt="background">`;
     } else if (bgType === 'custom' && customData) {
         bgContent = `<img src="${customData}" class="w-full h-full object-cover filter brightness-[1.15] contrast-[1.1]" alt="custom background">`;
     }
@@ -41,7 +44,7 @@ export const MoneyPowerCard = () => {
                     <button onclick="window.setWidgetBg('none')" class="w-5 h-5 rounded-full bg-zinc-800 border border-white/20 hover:border-white/60 transition-colors shrink-0" title="Default"></button>
                     
                     ${PRESET_IMAGES.map(img => `
-                        <button onclick="window.setWidgetBg('${img}')" class="w-5 h-5 rounded-full bg-gray-800 border ${bgType === img || (bgType === 'image' && img === PRESET_IMAGES[0]) ? 'border-[#ccccfa] ring-1 ring-[#ccccfa]/30' : 'border-white/20'} hover:border-white/60 overflow-hidden transition-colors shrink-0">
+                        <button onclick="window.setWidgetBg('${img}')" class="w-5 h-5 rounded-full bg-gray-800 border ${normalizedBgType === img || (normalizedBgType === 'image' && img === PRESET_IMAGES[0]) ? 'border-[#ccccfa] ring-1 ring-[#ccccfa]/30' : 'border-white/20'} hover:border-white/60 overflow-hidden transition-colors shrink-0">
                             <img src="${img}" class="w-full h-full object-cover">
                         </button>
                     `).join('')}
