@@ -15,8 +15,8 @@ export const Header = (userEmail = 'guest@mono.finance') => `
                 <div class="flex flex-col pointer-events-none">
                     <span class="text-[12px] font-semibold leading-none group-hover:text-white transition-colors">User</span>
                     <div class="flex items-center gap-1">
-                        <span class="text-[10px] text-gray-500 max-w-[100px] truncate">${userEmail}</span>
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse ml-1" title="Live Sync Active"></span>
+                        <span id="sync-text" class="text-[10px] text-gray-500 max-w-[100px] truncate">Live Sync Active</span>
+                        <span id="sync-indicator" class="w-1.5 h-1.5 rounded-full bg-emerald-500 ml-1" title="Connected to Vault"></span>
                     </div>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 group-hover:text-white pointer-events-none"><path d="m6 9 6 6 6-6"/></svg>

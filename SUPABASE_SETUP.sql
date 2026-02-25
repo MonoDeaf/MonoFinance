@@ -9,6 +9,8 @@ create table mono_app_state (
 );
 
 -- 2. Enable Realtime for this table so devices sync instantly
+-- Note: You might need to check if the publication 'supabase_realtime' exists in your DB
+-- If this fails, you can create it first with: CREATE PUBLICATION supabase_realtime;
 alter publication supabase_realtime add table mono_app_state;
 
 -- 3. Enable Row Level Security (RLS)
@@ -33,3 +35,17 @@ create policy "Users can update their own state"
 on mono_app_state for update
 to authenticated
 using (auth.uid() = user_id);
+
+-- 5. Automatically update the updated_at timestamp
+create or replace function update_updated_at_column()
+returns trigger as $$
+begin
+    new.updated_at = now();
+    return new;
+end;
+$$ language 'plpgsql';
+
+create trigger update_mono_app_state_updated_at
+    before update on mono_app_state
+    for each row
+    execute procedure update_updated_at_column();

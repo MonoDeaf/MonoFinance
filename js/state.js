@@ -35,13 +35,42 @@ let updateCallback = null;
 let currentUserId = null;
 let realtimeChannel = null;
 
+// Track sync status for UI feedback
+export const syncStatus = {
+    state: 'synced', // 'synced', 'syncing', 'error'
+    lastSynced: null
+};
+
 export function saveState() {
     // Debounced sync to Supabase (only if logged in)
     if (!isRemoteUpdate && currentUserId) {
+        setSyncStatus('syncing');
         if (syncTimeout) clearTimeout(syncTimeout);
         syncTimeout = setTimeout(() => {
             pushStateToSupabase();
-        }, 1000); // 1 second debounce
+        }, 500); // Reduced to 500ms for snappier feel
+    }
+    
+    // Auto-evaluate milestones whenever state changes
+    evaluateMilestones();
+}
+
+function setSyncStatus(status) {
+    syncStatus.state = status;
+    const indicator = document.getElementById('sync-indicator');
+    const indicatorText = document.getElementById('sync-text');
+    
+    if (indicator && indicatorText) {
+        if (status === 'syncing') {
+            indicator.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse ml-1';
+            indicatorText.innerText = 'Syncing...';
+        } else if (status === 'synced') {
+            indicator.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 ml-1';
+            indicatorText.innerText = 'Live Sync Active';
+        } else if (status === 'error') {
+            indicator.className = 'w-1.5 h-1.5 rounded-full bg-red-500 ml-1';
+            indicatorText.innerText = 'Sync Error';
+        }
     }
 }
 
@@ -57,11 +86,39 @@ async function pushStateToSupabase() {
                 updated_at: new Date().toISOString() 
             });
             
-        if (error) console.error('Supabase Sync Error:', error);
-        else console.log('State synced to cloud');
+        if (error) {
+            console.error('Supabase Sync Error:', error);
+            setSyncStatus('error');
+        } else {
+            setSyncStatus('synced');
+            syncStatus.lastSynced = new Date();
+        }
     } catch (e) {
         console.error('Sync failed', e);
+        setSyncStatus('error');
     }
+}
+
+function evaluateMilestones() {
+    // Calculate total assets for milestone checking
+    const assetsTotal = financeState.entries.reduce((sum, e) => {
+        if (['savings', 'stocks', 'crypto', 'emergency'].includes(e.type)) return sum + e.amount;
+        return sum;
+    }, 0);
+
+    const liabilitiesTotal = financeState.entries.reduce((sum, e) => {
+        if (['debit', 'credit'].includes(e.type)) return sum + e.amount;
+        return sum;
+    }, 0);
+
+    const netWorth = assetsTotal - liabilitiesTotal;
+
+    financeState.milestones.forEach(m => {
+        if (m.id === 1 && assetsTotal >= m.target) m.completed = true;
+        if (m.id === 2 && liabilitiesTotal === 0 && financeState.entries.some(e => e.type === 'credit')) m.completed = true;
+        if (m.id === 3 && netWorth >= m.target) m.completed = true;
+        if (m.id === 4 && netWorth >= m.target) m.completed = true;
+    });
 }
 
 export async function initSupabaseSync(userId, callback) {

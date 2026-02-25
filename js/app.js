@@ -255,6 +255,7 @@ function initTabHandlers() {
             const target = tab.getAttribute('data-tab');
             if (financeState.activeTab !== target) {
                 financeState.activeTab = target;
+                import('./state.js').then(m => m.saveState()); // Ensure tab preference is saved
                 renderDashboard();
             }
         });

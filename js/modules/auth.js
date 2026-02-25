@@ -17,10 +17,13 @@ export async function signUp(email, password) {
 }
 
 export async function signInWithGoogle() {
+    // Detect if we are in an iframe or on a specific domain
+    const redirectUrl = window.location.origin + window.location.pathname;
+    
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: 'https://monodeaf.github.io/MonoFinance/'
+            redirectTo: redirectUrl
         }
     });
     return { data, error };
