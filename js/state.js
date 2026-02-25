@@ -100,13 +100,15 @@ async function pushStateToSupabase() {
 }
 
 function evaluateMilestones() {
+    const entries = financeState.entries || [];
+
     // Calculate total assets for milestone checking
-    const assetsTotal = financeState.entries.reduce((sum, e) => {
+    const assetsTotal = entries.reduce((sum, e) => {
         if (['savings', 'stocks', 'crypto', 'emergency'].includes(e.type)) return sum + e.amount;
         return sum;
     }, 0);
 
-    const liabilitiesTotal = financeState.entries.reduce((sum, e) => {
+    const liabilitiesTotal = entries.reduce((sum, e) => {
         if (['debit', 'credit'].includes(e.type)) return sum + e.amount;
         return sum;
     }, 0);
@@ -115,7 +117,7 @@ function evaluateMilestones() {
 
     financeState.milestones.forEach(m => {
         if (m.id === 1 && assetsTotal >= m.target) m.completed = true;
-        if (m.id === 2 && liabilitiesTotal === 0 && financeState.entries.some(e => e.type === 'credit')) m.completed = true;
+        if (m.id === 2 && liabilitiesTotal === 0 && (financeState.entries || []).some(e => e.type === 'credit')) m.completed = true;
         if (m.id === 3 && netWorth >= m.target) m.completed = true;
         if (m.id === 4 && netWorth >= m.target) m.completed = true;
     });

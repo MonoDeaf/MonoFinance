@@ -232,16 +232,14 @@ function renderDashboard(root) {
     
     // Initialize/update calendar if on 'all' tab
     if (financeState.activeTab === 'all') {
-        if (!isInitialized) {
-            initCalendar(updateDashboard);
-        } else {
-            renderCalendarGrid(updateDashboard);
-        }
+        initCalendar(updateDashboard);
     }
     
+    // Re-attach finance listeners as the form is recreated on render
+    initFinance(updateDashboard);
+
     // Only initialize global listeners and one-time setups once
     if (!isInitialized) {
-        initFinance(updateDashboard);
         isInitialized = true;
     }
     
@@ -316,13 +314,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     const session = await getSession();
     currentUser = session ? session.user : null;
     
+    // Initialize sync if user is already logged in (Fixes refresh persistence issue)
+    if (currentUser) {
+        initSupabaseSync(currentUser.id, () => {
+            if (document.getElementById('dashboard-root')) {
+                renderDashboard();
+            }
+        });
+    }
+
     // 2. Setup listeners
     initAuthListeners((session) => {
-        const prevUser = currentUser;
+        const prevUserId = currentUser ? currentUser.id : null;
         currentUser = session ? session.user : null;
+        const currentUserId = currentUser ? currentUser.id : null;
         
-        // Only re-render if user state actually changed to prevent loops
-        if (!!prevUser !== !!currentUser) {
+        // Check if user identity actually changed
+        if (prevUserId !== currentUserId) {
             if (currentUser) {
                 // Immediately sync data for the new user
                 initSupabaseSync(currentUser.id, () => {
