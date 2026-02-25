@@ -1,7 +1,5 @@
 import { supabase, TABLE_NAME } from './modules/supabaseClient.js';
 
-const STORAGE_KEY = 'mono_finance_data_v1';
-
 const defaultState = {
     activeTab: 'all',
     sidebarOpen: window.innerWidth > 1024,
@@ -25,21 +23,8 @@ const defaultState = {
 };
 
 function loadState() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-        try {
-            const parsed = JSON.parse(stored);
-            const loadedState = { ...defaultState, ...parsed };
-            // Always start on 'all' tab and ensure sidebar is open when page loads/refreshes
-            loadedState.activeTab = 'all';
-            loadedState.sidebarOpen = true;
-            return loadedState;
-        } catch (e) {
-            console.error('Failed to parse state', e);
-            return defaultState;
-        }
-    }
-    return defaultState;
+    // Return default state; data will be hydrated from Supabase upon login
+    return { ...defaultState };
 }
 
 export let financeState = loadState();
@@ -51,9 +36,6 @@ let currentUserId = null;
 let realtimeChannel = null;
 
 export function saveState() {
-    // Always save to local storage for offline capability
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(financeState));
-    
     // Debounced sync to Supabase (only if logged in)
     if (!isRemoteUpdate && currentUserId) {
         if (syncTimeout) clearTimeout(syncTimeout);
@@ -132,9 +114,6 @@ export async function initSupabaseSync(userId, callback) {
                 console.log('Received real-time update');
                 isRemoteUpdate = true;
                 Object.assign(financeState, payload.new.data);
-                
-                // Update local storage without triggering push
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(financeState));
                 
                 if (updateCallback) updateCallback();
                 isRemoteUpdate = false;
