@@ -66,7 +66,11 @@ async function pushStateToSupabase() {
 
 export async function initSupabaseSync(userId, callback) {
     if (!userId) return;
-    if (currentUserId === userId) return; // Already syncing this user
+    // Important: currentUserId check ensures we don't duplicate listeners
+    if (currentUserId === userId) {
+        if (callback) callback();
+        return;
+    }
 
     currentUserId = userId;
     updateCallback = callback;
@@ -87,9 +91,8 @@ export async function initSupabaseSync(userId, callback) {
 
         if (data && data.data) {
             isRemoteUpdate = true;
-            // Merge cloud data
+            // Deep merge cloud data into local state to preserve structure
             Object.assign(financeState, data.data);
-            saveState(); 
             isRemoteUpdate = false;
             if (updateCallback) updateCallback();
         } else {

@@ -239,11 +239,6 @@ function renderDashboard(root) {
         }
     }
     
-    // Initialize Supabase Sync with User ID
-    if (currentUser && currentUser.id) {
-        initSupabaseSync(currentUser.id, renderDashboard);
-    }
-
     // Only initialize global listeners and one-time setups once
     if (!isInitialized) {
         initFinance(updateDashboard);
@@ -327,6 +322,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         // Only re-render if user state actually changed to prevent loops
         if (!!prevUser !== !!currentUser) {
+            if (currentUser) {
+                // Immediately sync data for the new user
+                initSupabaseSync(currentUser.id, () => {
+                    // Update UI after cloud data is loaded
+                    if (document.getElementById('dashboard-root')) {
+                        renderDashboard();
+                    }
+                });
+            } else {
+                // If logged out, reset initialization so next user can sync
+                isInitialized = false;
+            }
             renderApp();
         }
     });
