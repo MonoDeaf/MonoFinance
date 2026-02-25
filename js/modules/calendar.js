@@ -77,11 +77,11 @@ export function renderCalendarGrid(updateCallback) {
                     <span class="text-[11px] ${isSelected || isToday ? 'text-[#ccccfa] font-bold' : 'text-gray-500 group-hover:text-gray-300'}">${d}</span>
                     ${daySubs.length > 0 ? `<div class="w-1.5 h-1.5 rounded-full bg-[#ccccfa] shadow-[0_0_8px_rgba(204,204,250,0.8)]"></div>` : ''}
                 </div>
-                <div class="flex-1 flex items-center justify-center -mt-2">
+                <div class="flex-1 flex items-center justify-center gap-0.5 -mt-2">
                     ${daySubs.map(s => {
                         const icon = SERVICE_ICONS[s.service] || SERVICE_ICONS['Custom'];
                         const isWhiteIcon = ['Apple', 'Amazon', 'X', 'Xbox', 'Car', 'ChatGPT'].includes(s.service);
-                        return `<iconify-icon icon="${icon}" class="text-[32px] drop-shadow-md ${isWhiteIcon ? 'text-white' : ''}" title="${s.service}: $${s.amount}"></iconify-icon>`;
+                        return `<iconify-icon icon="${icon}" class="text-[20px] drop-shadow-sm ${isWhiteIcon ? 'text-white' : ''}" title="${s.service}: $${s.amount}"></iconify-icon>`;
                     }).join('')}
                 </div>
             </div>

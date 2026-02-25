@@ -1,4 +1,4 @@
-import { financeState } from '../state.js';
+import { financeState, saveState } from '../state.js';
 
 export function initSidebarLogic() {
     const toggleBtn = document.getElementById('sidebar-toggle');
@@ -7,6 +7,9 @@ export function initSidebarLogic() {
 
     // Handle initial state on load
     if (window.innerWidth > 1024) {
+        // If state is not set, default to open on desktop
+        if (financeState.sidebarOpen === undefined) financeState.sidebarOpen = true;
+
         if (!financeState.sidebarOpen) {
             sidebar.style.width = '0px';
             sidebar.style.minWidth = '0px';
@@ -29,6 +32,7 @@ export function initSidebarLogic() {
     toggleBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         financeState.sidebarOpen = !financeState.sidebarOpen;
+        saveState();
         
         if (window.innerWidth <= 1024) {
             sidebar.classList.toggle('mobile-open', financeState.sidebarOpen);

@@ -27,3 +27,5 @@ export { ChartsView } from './components/ChartsView.js';
 export { WealthView } from './components/WealthView.js';
 
 export { ActionsView } from './components/ActionsView.js';
+
+export { AuthView } from './components/AuthView.js';

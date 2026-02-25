@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lunor-finance-v1';
+const CACHE_NAME = 'mono-finance-v1';
 const ASSETS = [
   './',
   './index.html',
@@ -24,6 +24,8 @@ const ASSETS = [
   './js/components/ChartsView.js',
   './js/components/WealthView.js',
   './js/components/ActionsView.js',
+  './js/components/AuthView.js',
+  './js/modules/auth.js',
   './avatar-miguel.png',
   './Solitary Cabin on Hill.png',
   './Serene Landscape Scene.png',

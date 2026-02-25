@@ -1,6 +1,6 @@
 {
-  "name": "Lunor Finance Dashboard",
-  "short_name": "Lunor",
+  "name": "Mono Finance Dashboard",
+  "short_name": "Mono",
   "description": "An advanced financial overview dashboard to manage wealth and money power.",
   "start_url": "./index.html",
   "display": "standalone",

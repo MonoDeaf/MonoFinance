@@ -1,4 +1,6 @@
-const STORAGE_KEY = 'lunor_finance_data_v1';
+import { supabase, TABLE_NAME } from './modules/supabaseClient.js';
+
+const STORAGE_KEY = 'mono_finance_data_v1';
 
 const defaultState = {
     activeTab: 'all',
@@ -27,11 +29,10 @@ function loadState() {
     if (stored) {
         try {
             const parsed = JSON.parse(stored);
-            // Ensure sidebar default respects current viewport if not explicitly set, 
-            // though here we prioritize stored preference or default structure
             const loadedState = { ...defaultState, ...parsed };
-            // Always start on 'all' tab when page loads/refreshes
+            // Always start on 'all' tab and ensure sidebar is open when page loads/refreshes
             loadedState.activeTab = 'all';
+            loadedState.sidebarOpen = true;
             return loadedState;
         } catch (e) {
             console.error('Failed to parse state', e);
@@ -43,8 +44,103 @@ function loadState() {
 
 export let financeState = loadState();
 
+let isRemoteUpdate = false;
+let syncTimeout = null;
+let updateCallback = null;
+let currentUserId = null;
+let realtimeChannel = null;
+
 export function saveState() {
+    // Always save to local storage for offline capability
     localStorage.setItem(STORAGE_KEY, JSON.stringify(financeState));
+    
+    // Debounced sync to Supabase (only if logged in)
+    if (!isRemoteUpdate && currentUserId) {
+        if (syncTimeout) clearTimeout(syncTimeout);
+        syncTimeout = setTimeout(() => {
+            pushStateToSupabase();
+        }, 1000); // 1 second debounce
+    }
+}
+
+async function pushStateToSupabase() {
+    if (!currentUserId) return;
+
+    try {
+        const { error } = await supabase
+            .from(TABLE_NAME)
+            .upsert({ 
+                user_id: currentUserId, 
+                data: financeState, 
+                updated_at: new Date().toISOString() 
+            });
+            
+        if (error) console.error('Supabase Sync Error:', error);
+        else console.log('State synced to cloud');
+    } catch (e) {
+        console.error('Sync failed', e);
+    }
+}
+
+export async function initSupabaseSync(userId, callback) {
+    if (!userId) return;
+    if (currentUserId === userId) return; // Already syncing this user
+
+    currentUserId = userId;
+    updateCallback = callback;
+    
+    // Clean up previous subscription if exists
+    if (realtimeChannel) {
+        supabase.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+    }
+
+    // 1. Initial Fetch
+    try {
+        const { data, error } = await supabase
+            .from(TABLE_NAME)
+            .select('*')
+            .eq('user_id', currentUserId)
+            .single();
+
+        if (data && data.data) {
+            isRemoteUpdate = true;
+            // Merge cloud data
+            Object.assign(financeState, data.data);
+            saveState(); 
+            isRemoteUpdate = false;
+            if (updateCallback) updateCallback();
+        } else {
+            // Row doesn't exist for this user, create it with current local state
+            // (or empty state if we wanted to enforce fresh start)
+            pushStateToSupabase();
+        }
+    } catch (e) {
+        console.warn('Could not fetch initial state from Supabase.', e);
+    }
+
+    // 2. Realtime Subscription
+    realtimeChannel = supabase
+        .channel(`public:${TABLE_NAME}:${currentUserId}`)
+        .on('postgres_changes', { 
+            event: 'UPDATE', 
+            schema: 'public', 
+            table: TABLE_NAME, 
+            filter: `user_id=eq.${currentUserId}` 
+        }, payload => {
+            if (payload.new && payload.new.data) {
+                console.log('Received real-time update');
+                isRemoteUpdate = true;
+                Object.assign(financeState, payload.new.data);
+                
+                // Update local storage without triggering push
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(financeState));
+                
+                if (updateCallback) updateCallback();
+                isRemoteUpdate = false;
+            }
+        })
+        .subscribe();
 }
 
 export const CATEGORY_MAP = {
