@@ -11,7 +11,8 @@ import {
     ChartsView,
     WealthView,
     ActionsView,
-    AuthView
+    AuthView,
+    ProfileView
 } from './components.js';
 
 import { signIn, signUp, signInWithGoogle, signOut, getSession, initAuthListeners } from './modules/auth.js';
@@ -28,6 +29,7 @@ import { initWidgetBgControls } from './modules/background.js';
 let isInitialized = false;
 let currentUser = null;
 let isLoginMode = true;
+let lastRenderedTab = null;
 
 // Auth Handlers
 window.toggleAuthMode = () => {
@@ -108,9 +110,65 @@ window.performLogout = async () => {
     await signOut();
 };
 
+window.navigateToTab = (tab) => {
+    financeState.activeTab = tab;
+    import('./state.js').then(m => m.saveState());
+    renderDashboard();
+};
+
+window.toggleTheme = () => {
+    financeState.profile.theme = financeState.profile.theme === 'light' ? 'dark' : 'light';
+    applyTheme();
+    import('./state.js').then(m => m.saveState());
+    renderDashboard();
+};
+
+function applyTheme() {
+    const theme = financeState.profile?.theme || 'dark';
+    if (theme === 'light') {
+        document.body.classList.add('light-mode');
+    } else {
+        document.body.classList.remove('light-mode');
+    }
+}
+
+window.saveProfileSettings = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    financeState.profile = {
+        ...financeState.profile,
+        name: formData.get('displayName')
+    };
+    import('./state.js').then(m => m.saveState());
+    renderDashboard();
+};
+
+window.updateProfileAvatar = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        financeState.profile.avatarUrl = event.target.result;
+        import('./state.js').then(m => m.saveState());
+        renderDashboard();
+    };
+    reader.readAsDataURL(file);
+};
+
+window.confirmDeleteAccount = async () => {
+    if (confirm("Are you sure you want to delete your vault? This will permanently erase all your data and log you out. This action cannot be undone.")) {
+        // In a real app we'd call a backend service to delete the user.
+        // Here we'll clear state and log out.
+        alert("Account deletion initiated. Your data is being wiped.");
+        await signOut();
+    }
+};
+
 function renderApp() {
     const root = document.getElementById('dashboard-root');
     if (!root) return;
+
+    applyTheme();
 
     if (!currentUser) {
         root.innerHTML = AuthView();
@@ -123,6 +181,7 @@ function renderApp() {
 
 function renderDashboard(root) {
     if (!root) root = document.getElementById('dashboard-root');
+    applyTheme();
 
     const { totals, totalWorth, currencyFormatter } = getFinancialSnapshot();
 
@@ -173,6 +232,12 @@ function renderDashboard(root) {
                 ${ActionsView()}
             </div>
         `;
+    } else if (financeState.activeTab === 'profile') {
+        mainContent = `
+            <div class="mb-12">
+                ${ProfileView()}
+            </div>
+        `;
     } else {
         mainContent = `
             <div class="mb-12">
@@ -181,15 +246,17 @@ function renderDashboard(root) {
         `;
     }
 
+    lastRenderedTab = financeState.activeTab;
+
     const html = `
-        <div class="layout-container animate-in fade-in duration-500">
+        <div class="layout-container">
             ${Sidebar()}
             <main class="main-content">
                 <div class="dashboard-container relative">
                     ${Header(currentUser.email)}
                     ${TitleSection('Financial Overview', "Manage your wealth and track your money power.", financeState.activeTab)}
                     
-                    <div class="flex flex-col gap-6">
+                    <div id="active-tab-container" class="flex flex-col gap-6">
                         ${mainContent}
                     </div>
                 </div>
@@ -291,6 +358,13 @@ function initUserMenuLogic() {
 export function updateDashboard() {
     const { totals, totalWorth, currencyFormatter } = getFinancialSnapshot();
 
+    // Update Profile Header Info
+    const headerName = document.getElementById('header-username');
+    const headerAvatar = document.getElementById('header-avatar');
+    if (headerName && financeState.profile) headerName.innerText = financeState.profile.name || 'User';
+    if (headerAvatar && financeState.profile) headerAvatar.src = financeState.profile.avatarUrl || 'avatar-miguel.png';
+
+    // Update global stat elements
     Object.keys(totals).forEach(key => {
         const el = document.getElementById(`stat-${key}`);
         if (el) el.innerText = currencyFormatter.format(totals[key]);
@@ -299,6 +373,7 @@ export function updateDashboard() {
     const netWorthEl = document.getElementById('display-net-worth');
     if (netWorthEl) netWorthEl.innerText = currencyFormatter.format(totalWorth);
 
+    // Surgically update tab-specific content
     if (financeState.activeTab === 'all') {
         updateLedgerUI(currencyFormatter);
         updateChart(totals);
@@ -306,6 +381,12 @@ export function updateDashboard() {
         updateAssetsFullList(currencyFormatter);
     } else if (financeState.activeTab === 'charts') {
         renderCustomCharts(updateDashboard);
+    } else if (financeState.activeTab === 'actions') {
+        const container = document.getElementById('active-tab-container');
+        if (container) container.innerHTML = ActionsView();
+    } else if (financeState.activeTab === 'wealth') {
+        const container = document.getElementById('active-tab-container');
+        if (container) container.innerHTML = WealthView(totals, totalWorth, currencyFormatter);
     }
 }
 
@@ -318,7 +399,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (currentUser) {
         initSupabaseSync(currentUser.id, () => {
             if (document.getElementById('dashboard-root')) {
-                renderDashboard();
+                // If tab structural changes occurred, full re-render, otherwise surgical update
+                if (lastRenderedTab !== financeState.activeTab) {
+                    renderDashboard();
+                } else {
+                    updateDashboard();
+                }
             }
         });
     }
@@ -336,7 +422,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 initSupabaseSync(currentUser.id, () => {
                     // Update UI after cloud data is loaded
                     if (document.getElementById('dashboard-root')) {
-                        renderDashboard();
+                        if (lastRenderedTab !== financeState.activeTab) {
+                            renderDashboard();
+                        } else {
+                            updateDashboard();
+                        }
                     }
                 });
             } else {

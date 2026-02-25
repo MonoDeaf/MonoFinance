@@ -1,13 +1,13 @@
 export const Sidebar = () => `
-    <aside id="sidebar" class="sidebar flex flex-col h-full overflow-y-auto border-r border-white/5 bg-[#0a0a0a]">
+    <aside id="sidebar" class="sidebar flex flex-col h-full overflow-y-auto">
         <!-- Logo Section -->
         <div class="px-6 py-6 mb-2">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-black/50 border border-white/10">
+                <div class="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-black/20 border border-white/10">
                     <img src="./logo-export.png" alt="Lunor Logo" class="w-full h-full object-cover">
                 </div>
                 <div class="flex flex-col">
-                    <span class="font-bold text-lg tracking-tight leading-none text-white">Mono</span>
+                    <span class="font-bold text-lg tracking-tight leading-none">Mono</span>
                     <span class="text-[10px] text-[#ccccfa] font-bold uppercase tracking-[0.2em] mt-1 opacity-70">Finance</span>
                 </div>
             </div>
@@ -15,9 +15,9 @@ export const Sidebar = () => `
 
         <!-- Brand Switcher -->
         <div class="px-4 mb-6">
-            <div class="flex items-center justify-between bg-[#141414] p-3 rounded-xl border border-white/5 cursor-pointer hover:bg-white/5 transition-colors">
+            <div class="flex items-center justify-between p-3 rounded-xl border border-[var(--border-main)] bg-[var(--bg-input)] cursor-pointer hover:opacity-80 transition-all">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-[#222] rounded-full flex items-center justify-center overflow-hidden">
+                    <div class="w-8 h-8 bg-[var(--bg-hover)] rounded-full flex items-center justify-center overflow-hidden">
                         <iconify-icon icon="material-symbols:account-balance-wallet-outline" class="text-lg text-[#ccccfa]"></iconify-icon>
                     </div>
                     <span class="font-semibold text-xs">Primary Vault</span>
@@ -72,7 +72,7 @@ export const Sidebar = () => `
         </div>
 
         <!-- PWA Install Button -->
-        <div id="pwa-install-container" class="px-4 pb-8 hidden animate-in fade-in duration-700">
+        <div id="pwa-install-container" class="px-4 pb-8 hidden">
             <button id="install-pwa-btn" class="w-full py-3 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-2">
                 <iconify-icon icon="material-symbols:download-for-offline-outline-rounded" class="text-lg"></iconify-icon>
                 Install App

@@ -25,7 +25,7 @@ export const MoneyPowerCard = () => {
     }
 
     return `
-    <div class="card flex flex-col h-full relative overflow-hidden group">
+    <div class="card !p-2 lg:!p-8 flex flex-col h-full relative overflow-hidden group">
         <!-- Background Splash -->
         <div id="money-power-bg" class="absolute inset-0 z-0 pointer-events-none opacity-40 transition-all duration-500">
             ${bgContent}
@@ -33,7 +33,7 @@ export const MoneyPowerCard = () => {
         </div>
 
         <div class="relative z-10 flex flex-col h-full">
-            <div class="w-full flex justify-between items-start mb-8 px-4">
+            <div class="w-full flex justify-between items-start mb-8 sm:px-4">
                 <div>
                     <h3 class="text-xl font-bold">Total Money Power</h3>
                     <p class="text-gray-500 text-xs">Analysis based on your current liquid assets.</p>
@@ -56,7 +56,7 @@ export const MoneyPowerCard = () => {
                 </div>
             </div>
 
-            <div class="flex flex-col lg:flex-row flex-1 items-center justify-between gap-12 px-4">
+            <div class="flex flex-col lg:flex-row flex-1 items-center justify-between gap-12 sm:px-4">
                 <!-- Left Side: Chart (Pushed slightly right to accommodate labels) -->
                 <div class="relative w-full max-w-[280px] sm:max-w-[320px] aspect-square lg:ml-8">
                     <!-- Dynamic Labels -->
@@ -104,8 +104,8 @@ export const MoneyPowerCard = () => {
                 </div>
 
                 <!-- Right Side: Scrollable List -->
-                <div class="w-full lg:max-w-[300px] h-[320px] bg-black/80 backdrop-blur-sm rounded-xl border border-white/5 flex flex-col ledger-shadow">
-                    <div class="p-4 border-b border-white/5 flex justify-between items-center">
+                <div class="w-full lg:max-w-[300px] h-[320px] bg-[var(--bg-input)] rounded-xl border border-[var(--border-main)] flex flex-col ledger-shadow">
+                    <div class="p-4 border-b border-[var(--border-main)] flex justify-between items-center">
                         <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Assets Ledger</span>
                         <span id="ledger-count" class="text-[10px] bg-[#ccccfa] text-black px-2 py-0.5 rounded-full font-bold">0</span>
                     </div>
@@ -116,7 +116,7 @@ export const MoneyPowerCard = () => {
                 </div>
             </div>
             
-            <div class="mt-12 w-full grid grid-cols-2 md:grid-cols-5 gap-4 px-4 pb-6">
+            <div class="mt-12 w-full grid grid-cols-2 md:grid-cols-5 gap-4 sm:px-4 pb-6">
                 <div class="flex flex-col gap-1 border-l-2 border-[#ccccfa] pl-4">
                     <span class="text-gray-500 text-[10px] uppercase">Savings</span>
                     <span id="stat-savings" class="text-lg font-bold text-sm">$0.00</span>

@@ -23,11 +23,6 @@ export function initFinance(updateCallback) {
             saveState();
             updateCallback();
             form.reset();
-            
-            gsap.fromTo("#ledger-list > div:first-child", 
-                { x: 20, opacity: 0 }, 
-                { x: 0, opacity: 1, duration: 0.5, ease: "back.out(1.7)" }
-            );
         });
     }
 
@@ -55,16 +50,16 @@ export function updateLedgerUI(formatter) {
         const cat = CATEGORY_MAP[entry.type];
         const color = COLOR_MAP[cat];
         return `
-            <div class="bg-white/5 p-3 rounded-lg border border-white/5 flex items-center justify-between group">
+            <div class="bg-[var(--bg-hover)] p-3 rounded-lg border border-[var(--border-main)] flex items-center justify-between group">
                 <div class="flex items-center gap-3">
                     <div class="w-1.5 h-6 rounded-full" style="background-color: ${color}"></div>
                     <div class="flex flex-col">
-                        <span class="text-[11px] font-bold text-white leading-none">${entry.label}</span>
+                        <span class="text-[11px] font-bold text-[var(--text-main)] leading-none">${entry.label}</span>
                         <span class="text-[9px] text-gray-500 uppercase mt-1">${entry.type}</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold ${entry.type === 'credit' || entry.type === 'debit' ? 'text-red-400' : 'text-gray-300'}">${formatter.format(entry.amount)}</span>
+                    <span class="text-xs font-bold ${entry.type === 'credit' || entry.type === 'debit' ? 'text-red-400' : 'text-[var(--text-muted)] group-hover:text-[var(--text-main)]'}">${formatter.format(entry.amount)}</span>
                     <button onclick="window.removeEntry(${entry.id})" class="text-gray-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all">
                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                     </button>
@@ -112,16 +107,16 @@ export function updateAssetsFullList(formatter) {
     list.innerHTML = financeState.entries.map(entry => {
         const color = COLOR_MAP[CATEGORY_MAP[entry.type]] || '#888';
         return `
-            <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center justify-between group hover:bg-white/[0.08] transition-all">
+            <div class="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border-main)] flex items-center justify-between group hover:shadow-md transition-all">
                 <div class="flex items-center gap-4">
                     <div class="w-1.5 h-10 rounded-full" style="background-color: ${color}"></div>
                     <div class="flex flex-col">
-                        <span class="text-sm font-bold text-white">${entry.label}</span>
+                        <span class="text-sm font-bold text-[var(--text-main)]">${entry.label}</span>
                         <span class="text-[10px] text-gray-500 uppercase tracking-wider">${entry.type}</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-6">
-                    <div class="text-lg font-bold ${entry.type === 'credit' || entry.type === 'debit' ? 'text-red-400' : 'text-white'}">
+                    <div class="text-lg font-bold ${entry.type === 'credit' || entry.type === 'debit' ? 'text-red-400' : 'text-[var(--text-main)]'}">
                         ${formatter.format(entry.amount)}
                     </div>
                     <button onclick="window.removeEntry(${entry.id})" class="text-gray-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all p-2">

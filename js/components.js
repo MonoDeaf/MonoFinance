@@ -29,3 +29,5 @@ export { WealthView } from './components/WealthView.js';
 export { ActionsView } from './components/ActionsView.js';
 
 export { AuthView } from './components/AuthView.js';
+
+export { ProfileView } from './components/ProfileView.js';

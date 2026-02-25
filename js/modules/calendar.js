@@ -66,22 +66,22 @@ export function renderCalendarGrid(updateCallback) {
         const isSelected = selectedDay === d;
         
         const borderClass = isSelected 
-            ? 'border-[#ccccfa] bg-[#1a1a1a] ring-1 ring-[#ccccfa]/30 z-10 scale-[1.02]' 
+            ? 'border-[var(--accent-primary)] bg-[var(--bg-input)] ring-1 ring-[var(--accent-primary)]/30 z-10 scale-[1.02]' 
             : isToday 
-                ? 'border-[#ccccfa]/40 shadow-[0_0_15px_rgba(204,204,250,0.1)] outline outline-1 outline-[#ccccfa] outline-offset-2' 
-                : 'border-white/5';
+                ? 'border-[var(--accent-primary)]/40 shadow-[0_0_15px_rgba(204,204,250,0.1)] outline outline-1 outline-[var(--accent-primary)] outline-offset-2' 
+                : 'border-[var(--border-main)]';
 
         daysHtml += `
-            <div onclick="window.openSubModal(${d})" class="group relative bg-[#141414] hover:bg-[#1a1a1a] rounded-lg min-h-[80px] p-1.5 cursor-pointer transition-all border ${borderClass} hover:border-white/20 flex flex-col justify-between">
+            <div onclick="window.openSubModal(${d})" class="group relative bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] rounded-lg min-h-[80px] p-1.5 cursor-pointer transition-all border ${borderClass} hover:border-[var(--accent-primary)]/20 flex flex-col justify-between">
                 <div class="flex justify-between items-start w-full px-1">
-                    <span class="text-[11px] ${isSelected || isToday ? 'text-[#ccccfa] font-bold' : 'text-gray-500 group-hover:text-gray-300'}">${d}</span>
-                    ${daySubs.length > 0 ? `<div class="w-1.5 h-1.5 rounded-full bg-[#ccccfa] shadow-[0_0_8px_rgba(204,204,250,0.8)]"></div>` : ''}
+                    <span class="text-[11px] ${isSelected || isToday ? 'text-[var(--accent-primary)] font-bold' : 'text-gray-500 group-hover:text-[var(--text-main)]'}">${d}</span>
+                    ${daySubs.length > 0 ? `<div class="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] shadow-[0_0_8px_rgba(204,204,250,0.8)]"></div>` : ''}
                 </div>
                 <div class="flex-1 flex items-center justify-center gap-0.5 -mt-2">
                     ${daySubs.map(s => {
                         const icon = SERVICE_ICONS[s.service] || SERVICE_ICONS['Custom'];
                         const isWhiteIcon = ['Apple', 'Amazon', 'X', 'Xbox', 'Car', 'ChatGPT'].includes(s.service);
-                        return `<iconify-icon icon="${icon}" class="text-[20px] drop-shadow-sm ${isWhiteIcon ? 'text-white' : ''}" title="${s.service}: $${s.amount}"></iconify-icon>`;
+                        return `<iconify-icon icon="${icon}" class="text-[20px] drop-shadow-sm ${isWhiteIcon && financeState.profile.theme === 'dark' ? 'text-white' : ''}" title="${s.service}: $${s.amount}"></iconify-icon>`;
                     }).join('')}
                 </div>
             </div>
@@ -108,7 +108,7 @@ function closeSidePanel() {
     const panel = document.getElementById('calendar-side-panel');
     if (panel) {
         panel.innerHTML = `
-            <div class="card h-full flex flex-col items-center justify-center text-center p-8 border-dashed border-white/10 opacity-40 animate-in fade-in duration-300">
+            <div class="card h-full flex flex-col items-center justify-center text-center p-8 border-dashed border-white/10 opacity-40">
                 <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
                 </div>
@@ -128,7 +128,7 @@ function openSubModal(day, updateCallback) {
     const daySubs = financeState.subscriptions.filter(s => s.day === day);
     
     panel.innerHTML = `
-        <div class="card h-full flex flex-col animate-in fade-in slide-in-from-right-4 duration-500 ease-out">
+        <div class="card h-full flex flex-col">
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h4 class="text-sm font-bold">Day ${day} Subscriptions</h4>
@@ -169,7 +169,7 @@ function openSubModal(day, updateCallback) {
                     <input type="hidden" id="sub-day-input" value="${day}">
                     <div>
                         <label class="block text-[10px] text-gray-500 uppercase font-bold tracking-[0.15em] mb-2 ml-1">Service Type</label>
-                        <select id="sub-service" class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-3.5 text-xs focus:outline-none focus:border-[#ccccfa]/50 transition-colors cursor-pointer appearance-none">
+                        <select id="sub-service" class="w-full input-base border-[var(--border-main)] rounded-xl p-3.5 text-xs focus:outline-none focus:border-[var(--accent-primary)]/50 transition-colors cursor-pointer appearance-none">
                             <option value="Netflix">Netflix</option>
                             <option value="Spotify">Spotify</option>
                             <option value="ChatGPT">ChatGPT Plus</option>
@@ -194,10 +194,10 @@ function openSubModal(day, updateCallback) {
                          <label class="block text-[10px] text-gray-500 uppercase font-bold tracking-[0.15em] mb-2 ml-1">Monthly Amount</label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xs">$</span>
-                            <input type="number" id="sub-cost" step="0.01" required class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl p-3.5 pl-8 text-xs focus:outline-none focus:border-[#ccccfa]/50 transition-colors" placeholder="0.00">
+                            <input type="number" id="sub-cost" step="0.01" required class="w-full input-base border-[var(--border-main)] rounded-xl p-3.5 pl-8 text-xs focus:outline-none focus:border-[var(--accent-primary)]/50 transition-colors" placeholder="0.00">
                         </div>
                     </div>
-                    <button type="submit" class="w-full py-4 bg-white text-black text-sm font-bold rounded-md hover:bg-[#ccccfa] transition-all transform active:scale-[0.98] shadow-lg shadow-white/5">Add to Subscriptions</button>
+                    <button type="submit" class="w-full py-4 btn-primary text-sm font-bold rounded-md transition-all transform active:scale-[0.98] shadow-lg">Add to Subscriptions</button>
                 </form>
             </div>
         </div>

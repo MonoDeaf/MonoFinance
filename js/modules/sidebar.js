@@ -1,13 +1,34 @@
 import { financeState, saveState } from '../state.js';
 
+// Initialize global click listener once for outside clicks
+document.addEventListener('click', (e) => {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    
+    if (window.innerWidth <= 1024 && financeState.sidebarOpen && sidebar) {
+        // Close if click is outside sidebar AND not on the toggle button itself
+        const isClickInsideSidebar = sidebar.contains(e.target);
+        const isClickOnToggle = toggleBtn && (toggleBtn === e.target || toggleBtn.contains(e.target));
+        
+        if (!isClickInsideSidebar && !isClickOnToggle) {
+            financeState.sidebarOpen = false;
+            sidebar.classList.remove('mobile-open');
+            // No need to saveState() here as it's purely UI transient
+        }
+    }
+});
+
 export function initSidebarLogic() {
     const toggleBtn = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
     if (!toggleBtn || !sidebar) return;
 
-    // Handle initial state on load
-    if (window.innerWidth > 1024) {
-        // If state is not set, default to open on desktop
+    // Handle initial state on load: Force closed on non-desktop
+    if (window.innerWidth <= 1024) {
+        financeState.sidebarOpen = false;
+        sidebar.classList.remove('mobile-open');
+    } else {
+        // Desktop handling
         if (financeState.sidebarOpen === undefined) financeState.sidebarOpen = true;
 
         if (!financeState.sidebarOpen) {
@@ -21,18 +42,12 @@ export function initSidebarLogic() {
             sidebar.style.opacity = '1';
             sidebar.style.display = 'flex';
         }
-    } else {
-        if (financeState.sidebarOpen) {
-            sidebar.classList.add('mobile-open');
-        } else {
-            sidebar.classList.remove('mobile-open');
-        }
     }
 
-    toggleBtn.addEventListener('click', (e) => {
+    // Use .onclick to ensure we don't stack multiple listeners on re-renders
+    toggleBtn.onclick = (e) => {
         e.stopPropagation();
         financeState.sidebarOpen = !financeState.sidebarOpen;
-        saveState();
         
         if (window.innerWidth <= 1024) {
             sidebar.classList.toggle('mobile-open', financeState.sidebarOpen);
@@ -61,17 +76,10 @@ export function initSidebarLogic() {
                 });
             }
         }
-    });
+        saveState();
+    };
 
-    // Outside click to close on mobile
-    document.addEventListener('click', (e) => {
-        if (window.innerWidth <= 1024 && financeState.sidebarOpen && !sidebar.contains(e.target) && e.target !== toggleBtn) {
-            financeState.sidebarOpen = false;
-            sidebar.classList.remove('mobile-open');
-        }
-    });
-
-    window.addEventListener('resize', () => {
+    window.onresize = () => {
         if (window.innerWidth > 1024) {
             sidebar.classList.remove('mobile-open');
             sidebar.style.display = financeState.sidebarOpen ? 'flex' : 'none';
@@ -81,9 +89,11 @@ export function initSidebarLogic() {
         } else {
             sidebar.style.width = '';
             sidebar.style.minWidth = '';
+            sidebar.style.display = '';
+            sidebar.style.opacity = '';
             if (!financeState.sidebarOpen) {
                 sidebar.classList.remove('mobile-open');
             }
         }
-    });
+    };
 }

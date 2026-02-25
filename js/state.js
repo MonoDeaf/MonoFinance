@@ -14,6 +14,11 @@ const defaultState = {
     dailyUpdateViewActive: false,
     widgetBgType: 'image', // 'none', 'image', 'custom'
     customBgData: null,
+    profile: {
+        name: 'User',
+        avatarUrl: 'avatar-miguel.png',
+        theme: 'dark'
+    },
     milestones: [
         { id: 1, label: 'Emergency Fund Starter', target: 1000, completed: false },
         { id: 2, label: 'Debt Free (Credit)', target: 0, completed: false },
@@ -77,12 +82,17 @@ function setSyncStatus(status) {
 async function pushStateToSupabase() {
     if (!currentUserId) return;
 
+    // Filter out transient UI state that shouldn't sync across devices
+    const stateToSync = { ...financeState };
+    delete stateToSync.sidebarOpen;
+    delete stateToSync.dailyUpdateViewActive;
+
     try {
         const { error } = await supabase
             .from(TABLE_NAME)
             .upsert({ 
                 user_id: currentUserId, 
-                data: financeState, 
+                data: stateToSync, 
                 updated_at: new Date().toISOString() 
             });
             
