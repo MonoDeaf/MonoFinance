@@ -1,0 +1,21 @@
+{
+  "name": "Lunor Finance Dashboard",
+  "short_name": "Lunor",
+  "description": "An advanced financial overview dashboard to manage wealth and money power.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "extension_icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "extension_icon@1024px.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    }
+  ]
+}
