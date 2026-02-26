@@ -65,7 +65,7 @@ export function updateLedgerUI(formatter) {
         const isHidden = entry.hidden === true;
 
         return `
-            <div class="bg-[var(--bg-hover)] p-3 rounded-lg border border-[var(--border-main)] flex items-center justify-between group/item ${isHidden ? 'opacity-30 grayscale' : ''} transition-all">
+            <div class="relative bg-[var(--bg-hover)] p-3 rounded-lg border border-[var(--border-main)] flex items-center justify-between group/item ${isHidden ? 'opacity-30 grayscale' : ''} transition-[background-color,border-color,opacity] duration-300">
                 <div class="flex items-center gap-3">
                     <div class="w-1.5 h-6 rounded-full" style="background-color: ${color}"></div>
                     <div class="flex flex-col">
@@ -73,14 +73,14 @@ export function updateLedgerUI(formatter) {
                         <span class="text-[9px] text-gray-500 uppercase mt-1">${entry.type}</span>
                     </div>
                 </div>
-                <div class="relative flex items-center justify-end min-w-[80px]">
-                    <span class="text-xs font-bold transition-all duration-300 transform -translate-x-[53px] lg:translate-x-0 lg:group-hover/item:-translate-x-[53px] ${entry.type === 'credit' || entry.type === 'debit' ? 'text-red-400' : 'text-[var(--text-muted)] group-hover/item:text-[var(--text-main)]'}">${formatter.format(entry.amount)}</span>
+                <div class="relative flex items-center justify-end w-[90px] flex-none">
+                    <span class="text-xs font-bold transition-transform duration-300 transform-gpu -translate-x-[58px] lg:translate-x-0 lg:group-hover/item:-translate-x-[58px] ${entry.type === 'credit' || entry.type === 'debit' ? 'text-red-400' : 'text-[var(--text-muted)] group-hover/item:text-[var(--text-main)]'}">${formatter.format(entry.amount)}</span>
                     
-                    <div class="absolute right-0 flex items-center gap-1 transition-all duration-300 transform opacity-100 lg:opacity-0 lg:translate-x-4 lg:group-hover/item:opacity-100 lg:group-hover/item:translate-x-0">
-                        <button onclick="window.toggleHideEntry(${entry.id})" class="p-1 text-gray-500 hover:text-[var(--accent-primary)] transition-all" title="${isHidden ? 'Show in Power' : 'Hide from Power'}">
+                    <div class="absolute right-0 flex items-center gap-1 transition-opacity duration-300 opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 pointer-events-auto lg:pointer-events-none lg:group-hover/item:pointer-events-auto">
+                        <button onclick="window.toggleHideEntry(${entry.id})" class="p-1 text-gray-500 hover:text-[var(--accent-primary)] transition-colors duration-200 outline-none">
                             <iconify-icon icon="${isHidden ? 'material-symbols:visibility-off-outline-rounded' : 'material-symbols:visibility-outline-rounded'}" class="text-sm"></iconify-icon>
                         </button>
-                        <button onclick="window.removeEntry(${entry.id})" class="p-1 text-gray-500 hover:text-red-400 transition-all">
+                        <button onclick="window.removeEntry(${entry.id})" class="p-1 text-gray-500 hover:text-red-400 transition-colors duration-200 outline-none">
                              <iconify-icon icon="material-symbols:close-rounded" class="text-sm"></iconify-icon>
                         </button>
                     </div>
@@ -134,7 +134,7 @@ export function updateAssetsFullList(formatter) {
         const color = COLOR_MAP[CATEGORY_MAP[entry.type]] || '#888';
         const isHidden = entry.hidden === true;
         return `
-            <div class="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border-main)] flex items-center justify-between group/full hover:shadow-md transition-all ${isHidden ? 'opacity-30 grayscale' : ''}">
+            <div class="relative bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border-main)] flex items-center justify-between group/full transition-[background-color,border-color,opacity] duration-300 ${isHidden ? 'opacity-30 grayscale' : ''}">
                 <div class="flex items-center gap-4">
                     <div class="w-1.5 h-10 rounded-full" style="background-color: ${color}"></div>
                     <div class="flex flex-col">
@@ -142,15 +142,15 @@ export function updateAssetsFullList(formatter) {
                         <span class="text-[10px] text-gray-500 uppercase tracking-wider">${entry.type}</span>
                     </div>
                 </div>
-                <div class="relative flex items-center justify-end min-w-[150px]">
-                    <div class="text-lg font-bold transition-all duration-300 transform -translate-x-[85px] lg:translate-x-0 lg:group-hover/full:-translate-x-[85px] ${entry.type === 'credit' || entry.type === 'debit' ? 'text-red-400' : 'text-[var(--text-main)]'}">
+                <div class="relative flex items-center justify-end w-[180px] flex-none">
+                    <div class="text-lg font-bold transition-transform duration-300 transform-gpu -translate-x-[90px] lg:translate-x-0 lg:group-hover/full:-translate-x-[90px] ${entry.type === 'credit' || entry.type === 'debit' ? 'text-red-400' : 'text-[var(--text-main)]'}">
                         ${formatter.format(entry.amount)}
                     </div>
-                    <div class="absolute right-0 flex items-center gap-1 sm:gap-2 transition-all duration-300 transform opacity-100 lg:opacity-0 lg:translate-x-4 lg:group-hover/full:opacity-100 lg:group-hover/full:translate-x-0">
-                        <button onclick="window.toggleHideEntry(${entry.id})" class="text-gray-500 hover:text-[var(--accent-primary)] transition-all p-2" title="${isHidden ? 'Show in Power' : 'Hide from Power'}">
+                    <div class="absolute right-0 flex items-center gap-1 sm:gap-2 transition-opacity duration-300 opacity-100 lg:opacity-0 lg:group-hover/full:opacity-100 pointer-events-auto lg:pointer-events-none lg:group-hover/full:pointer-events-auto">
+                        <button onclick="window.toggleHideEntry(${entry.id})" class="text-gray-500 hover:text-[var(--accent-primary)] transition-colors duration-200 p-2 outline-none">
                             <iconify-icon icon="${isHidden ? 'material-symbols:visibility-off-outline-rounded' : 'material-symbols:visibility-outline-rounded'}" class="text-xl"></iconify-icon>
                         </button>
-                        <button onclick="window.removeEntry(${entry.id})" class="text-gray-500 hover:text-red-400 transition-all p-2">
+                        <button onclick="window.removeEntry(${entry.id})" class="text-gray-500 hover:text-red-400 transition-colors duration-200 p-2 outline-none">
                              <iconify-icon icon="material-symbols:close-rounded" class="text-xl"></iconify-icon>
                         </button>
                     </div>
