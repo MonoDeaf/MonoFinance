@@ -21,29 +21,52 @@ export function ActionsView() {
 
                 <!-- Add Action Form (Hidden by default) -->
                 <div id="action-form-container" class="hidden mb-8 p-6 bg-[var(--bg-input)] border border-dashed border-[var(--border-main)] rounded-[0.25rem]">
-                    <form onsubmit="window.addNewAction(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                        <div class="lg:col-span-1">
-                            <label class="block text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em] mb-2">Action Type</label>
-                            <select name="type" onchange="this.form.url.required = (this.value === 'url'); this.form.url.parentElement.classList.toggle('hidden', this.value !== 'url')" class="w-full input-base rounded-[0.25rem] p-3 text-xs focus:border-[var(--accent-primary)]/50 outline-none appearance-none cursor-pointer">
-                                <option value="url">Visit URL</option>
-                                <option value="basic">Basic Action</option>
-                            </select>
+                    <form onsubmit="window.addNewAction(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em] mb-2">Action Type</label>
+                                <select name="type" onchange="this.form.url.required = (this.value === 'url'); this.form.url.parentElement.classList.toggle('hidden', this.value !== 'url')" class="w-full input-base rounded-[0.25rem] p-3 text-xs focus:border-[var(--accent-primary)]/50 outline-none appearance-none cursor-pointer">
+                                    <option value="url">Visit URL</option>
+                                    <option value="basic">Basic Action</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em] mb-2">Button Title</label>
+                                <input type="text" name="title" required class="w-full input-base rounded-[0.25rem] p-3 text-xs focus:border-[var(--accent-primary)]/50 outline-none" placeholder="e.g. Pay Rent">
+                            </div>
                         </div>
-                        <div class="lg:col-span-1">
-                            <label class="block text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em] mb-2">Button Title</label>
-                            <input type="text" name="title" required class="w-full input-base rounded-[0.25rem] p-3 text-xs focus:border-[var(--accent-primary)]/50 outline-none" placeholder="e.g. Pay Rent">
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em] mb-2">Target URL</label>
+                                <input type="url" name="url" required class="w-full input-base rounded-[0.25rem] p-3 text-xs focus:border-[var(--accent-primary)]/50 outline-none" placeholder="https://...">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em] mb-2">Impact on Wealth</label>
+                                <select name="impact" class="w-full input-base rounded-[0.25rem] p-3 text-xs focus:border-[var(--accent-primary)]/50 outline-none appearance-none cursor-pointer">
+                                    <option value="deduction">Deduction (Expense)</option>
+                                    <option value="addition">Addition (Gain)</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="lg:col-span-1">
-                            <label class="block text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em] mb-2">Target URL</label>
-                            <input type="url" name="url" required class="w-full input-base rounded-[0.25rem] p-3 text-xs focus:border-[var(--accent-primary)]/50 outline-none" placeholder="https://...">
+
+                        <div class="space-y-4">
+                             <div>
+                                <label class="block text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em] mb-2">Amount Setting</label>
+                                <select name="amountType" onchange="const amt = this.form.amount; amt.parentElement.classList.toggle('hidden', this.value === 'variable'); amt.required = (this.value === 'fixed')" class="w-full input-base rounded-[0.25rem] p-3 text-xs focus:border-[var(--accent-primary)]/50 outline-none appearance-none cursor-pointer">
+                                    <option value="fixed">Fixed Amount</option>
+                                    <option value="variable">Variable (Log on click)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em] mb-2">Amount ($)</label>
+                                <input type="number" name="amount" step="0.01" class="w-full input-base rounded-[0.25rem] p-3 text-xs focus:border-[var(--accent-primary)]/50 outline-none" placeholder="0.00">
+                            </div>
                         </div>
-                        <div class="lg:col-span-1">
-                            <label class="block text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em] mb-2">Amount ($)</label>
-                            <input type="number" name="amount" step="0.01" class="w-full input-base rounded-[0.25rem] p-3 text-xs focus:border-[var(--accent-primary)]/50 outline-none" placeholder="0.00">
-                        </div>
-                        <div class="lg:col-span-1 flex gap-3 mt-auto">
-                            <button type="submit" class="flex-1 py-3 bg-[var(--accent-primary)] text-[var(--btn-text)] font-bold text-xs rounded-[0.25rem] hover:opacity-90 transition-all">Create</button>
-                            <button type="button" onclick="window.toggleActionForm()" class="px-6 py-3 border border-[var(--border-main)] rounded-[0.25rem] text-xs font-bold hover:bg-[var(--bg-hover)]">Cancel</button>
+
+                        <div class="flex flex-col gap-3 justify-end">
+                            <button type="submit" class="w-full py-4 bg-[var(--accent-primary)] text-[var(--btn-text)] font-bold text-xs rounded-[0.25rem] hover:opacity-90 transition-all">Create Action</button>
+                            <button type="button" onclick="window.toggleActionForm()" class="w-full py-2 border border-[var(--border-main)] rounded-[0.25rem] text-[10px] uppercase font-bold tracking-widest hover:bg-[var(--bg-hover)]">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -65,9 +88,12 @@ export function ActionsView() {
                             return `
                             <div class="group relative aspect-square">
                                 <button onclick="window.triggerAction('${action.url || ''}', ${action.id})" 
-                                    class="action-btn w-full h-full p-6 flex flex-col items-start justify-start text-left rounded-[0.25rem] border border-[var(--accent-primary)]/20 transition-all duration-300 ease-in-out ${isSelected ? 'bg-[var(--accent-primary)] text-[var(--btn-text)] shadow-[0_0_20px_rgba(204,204,250,0.2)]' : 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/20'}">
+                                    class="action-btn w-full h-full p-6 flex flex-col items-start justify-start text-left rounded-[0.25rem] border border-[var(--accent-primary)]/20 transition-all duration-300 ease-in-out ${isSelected ? 'bg-[var(--accent-primary)] text-[var(--btn-text)] shadow-[0_0_20px_rgba(204,204,250,0.2)]' : 'bg-[#ccccfa]/10 text-[var(--accent-primary)] hover:bg-[#ccccfa]/20'}">
                                     <span class="text-[9px] font-black uppercase tracking-widest mb-3 line-clamp-2 ${isSelected ? 'opacity-90' : 'opacity-70'}">${action.title}</span>
-                                    ${action.amount ? `<span class="text-3xl font-black tracking-tight">$${action.amount}</span>` : ''}
+                                    ${action.amountType === 'variable' ? 
+                                        `<span class="text-3xl font-black tracking-tight uppercase">Enter $</span>` : 
+                                        (action.amount ? `<span class="text-3xl font-black tracking-tight">${action.impact === 'addition' ? '+' : ''}$${action.amount}</span>` : '')
+                                    }
                                     <div class="action-icon-container mt-auto ${isSelected ? 'opacity-100' : 'opacity-0'} group-hover:opacity-100 transition-opacity duration-300">
                                          <iconify-icon icon="${action.type === 'url' ? 'material-symbols:open-in-new-rounded' : 'material-symbols:info-rounded'}" class="text-lg"></iconify-icon>
                                     </div>
@@ -105,7 +131,16 @@ export function ActionsView() {
                                     <div class="flex-1 space-y-6">
                                         <div>
                                             <span class="text-[9px] text-gray-500 font-bold uppercase tracking-[0.2em] mb-2 block">Value Allocation</span>
-                                            <div class="text-4xl font-black text-[var(--accent-primary)]">$${selectedAction.amount?.toFixed(2) || '0.00'}</div>
+                                            ${selectedAction.amountType === 'variable' ? `
+                                                <div class="relative">
+                                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg">$</span>
+                                                    <input type="number" id="variable-amount-input" step="0.01" class="w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-[0.25rem] py-4 pl-10 pr-4 text-2xl font-black text-[var(--text-main)] focus:outline-none focus:border-[var(--accent-primary)]/50" placeholder="0.00">
+                                                </div>
+                                            ` : `
+                                                <div class="text-4xl font-black text-[var(--accent-primary)]">
+                                                    ${selectedAction.impact === 'addition' ? '+' : '-'}$${selectedAction.amount?.toFixed(2) || '0.00'}
+                                                </div>
+                                            `}
                                         </div>
 
                                         <div class="pt-4 border-t border-[var(--border-main)]">

@@ -1,4 +1,5 @@
 import { financeState, saveState } from '../state.js';
+import { showToast } from './toast.js';
 
 export function renderCustomCharts(updateCallback) {
     const container = document.getElementById('charts-view-container');
@@ -94,6 +95,7 @@ export function renderCustomCharts(updateCallback) {
         financeState.customCharts = financeState.customCharts.filter(c => c.id !== id);
         saveState();
         updateCallback();
+        showToast('Custom chart deleted');
     };
 
     window.addDataPoint = (e, chartId) => {
@@ -111,6 +113,7 @@ export function renderCustomCharts(updateCallback) {
             });
             saveState();
             updateCallback();
+            showToast('Data point added');
         }
     };
 
@@ -120,6 +123,7 @@ export function renderCustomCharts(updateCallback) {
             chart.dataPoints = chart.dataPoints.filter(p => p.id !== pointId);
             saveState();
             updateCallback();
+            showToast('Data point removed');
         }
     };
 
@@ -139,5 +143,6 @@ export function renderCustomCharts(updateCallback) {
         saveState();
         form.reset();
         updateCallback();
+        showToast('New tracking chart created');
     };
 }

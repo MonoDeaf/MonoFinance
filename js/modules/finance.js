@@ -1,4 +1,5 @@
 import { financeState, saveState, CATEGORY_MAP, COLOR_MAP } from '../state.js';
+import { showToast } from './toast.js';
 
 export function initFinance(updateCallback) {
     const form = document.getElementById('financial-form');
@@ -23,6 +24,7 @@ export function initFinance(updateCallback) {
             saveState();
             updateCallback();
             form.reset();
+            showToast('Added to Money Power');
         });
     }
 
@@ -30,6 +32,17 @@ export function initFinance(updateCallback) {
         financeState.entries = financeState.entries.filter(e => e.id !== id);
         saveState();
         updateCallback();
+        showToast('Entry removed from ledger');
+    };
+
+    window.toggleHideEntry = (id) => {
+        const entry = financeState.entries.find(e => e.id === id);
+        if (entry) {
+            entry.hidden = !entry.hidden;
+            saveState();
+            updateCallback();
+            showToast(entry.hidden ? 'Asset hidden from Money Power' : 'Asset restored to Money Power');
+        }
     };
 }
 
@@ -49,8 +62,10 @@ export function updateLedgerUI(formatter) {
     list.innerHTML = financeState.entries.map(entry => {
         const cat = CATEGORY_MAP[entry.type];
         const color = COLOR_MAP[cat];
+        const isHidden = entry.hidden === true;
+
         return `
-            <div class="bg-[var(--bg-hover)] p-3 rounded-lg border border-[var(--border-main)] flex items-center justify-between group">
+            <div class="bg-[var(--bg-hover)] p-3 rounded-lg border border-[var(--border-main)] flex items-center justify-between group/item ${isHidden ? 'opacity-30 grayscale' : ''} transition-all">
                 <div class="flex items-center gap-3">
                     <div class="w-1.5 h-6 rounded-full" style="background-color: ${color}"></div>
                     <div class="flex flex-col">
@@ -58,11 +73,17 @@ export function updateLedgerUI(formatter) {
                         <span class="text-[9px] text-gray-500 uppercase mt-1">${entry.type}</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold ${entry.type === 'credit' || entry.type === 'debit' ? 'text-red-400' : 'text-[var(--text-muted)] group-hover:text-[var(--text-main)]'}">${formatter.format(entry.amount)}</span>
-                    <button onclick="window.removeEntry(${entry.id})" class="text-gray-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                    </button>
+                <div class="relative flex items-center justify-end min-w-[80px]">
+                    <span class="text-xs font-bold transition-all duration-300 transform -translate-x-[53px] lg:translate-x-0 lg:group-hover/item:-translate-x-[53px] ${entry.type === 'credit' || entry.type === 'debit' ? 'text-red-400' : 'text-[var(--text-muted)] group-hover/item:text-[var(--text-main)]'}">${formatter.format(entry.amount)}</span>
+                    
+                    <div class="absolute right-0 flex items-center gap-1 transition-all duration-300 transform opacity-100 lg:opacity-0 lg:translate-x-4 lg:group-hover/item:opacity-100 lg:group-hover/item:translate-x-0">
+                        <button onclick="window.toggleHideEntry(${entry.id})" class="p-1 text-gray-500 hover:text-[var(--accent-primary)] transition-all" title="${isHidden ? 'Show in Power' : 'Hide from Power'}">
+                            <iconify-icon icon="${isHidden ? 'material-symbols:visibility-off-outline-rounded' : 'material-symbols:visibility-outline-rounded'}" class="text-sm"></iconify-icon>
+                        </button>
+                        <button onclick="window.removeEntry(${entry.id})" class="p-1 text-gray-500 hover:text-red-400 transition-all">
+                             <iconify-icon icon="material-symbols:close-rounded" class="text-sm"></iconify-icon>
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -77,9 +98,14 @@ export function getFinancialSnapshot() {
 
     financeState.entries.forEach(entry => {
         const cat = CATEGORY_MAP[entry.type];
-        totals[cat] += entry.amount;
+        
+        // Always include in totalWorth, but filter from totals (donut chart) if hidden
         if (entry.type === 'credit') totalWorth -= entry.amount;
         else if (entry.type !== 'debit') totalWorth += entry.amount;
+
+        if (entry.hidden) return; // Skip contributing to donut chart and stats breakdown if hidden
+        
+        totals[cat] += entry.amount;
     });
 
     financeState.subscriptions.forEach(sub => {
@@ -106,8 +132,9 @@ export function updateAssetsFullList(formatter) {
 
     list.innerHTML = financeState.entries.map(entry => {
         const color = COLOR_MAP[CATEGORY_MAP[entry.type]] || '#888';
+        const isHidden = entry.hidden === true;
         return `
-            <div class="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border-main)] flex items-center justify-between group hover:shadow-md transition-all">
+            <div class="bg-[var(--bg-hover)] p-4 rounded-xl border border-[var(--border-main)] flex items-center justify-between group/full hover:shadow-md transition-all ${isHidden ? 'opacity-30 grayscale' : ''}">
                 <div class="flex items-center gap-4">
                     <div class="w-1.5 h-10 rounded-full" style="background-color: ${color}"></div>
                     <div class="flex flex-col">
@@ -115,13 +142,18 @@ export function updateAssetsFullList(formatter) {
                         <span class="text-[10px] text-gray-500 uppercase tracking-wider">${entry.type}</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-6">
-                    <div class="text-lg font-bold ${entry.type === 'credit' || entry.type === 'debit' ? 'text-red-400' : 'text-[var(--text-main)]'}">
+                <div class="relative flex items-center justify-end min-w-[150px]">
+                    <div class="text-lg font-bold transition-all duration-300 transform -translate-x-[85px] lg:translate-x-0 lg:group-hover/full:-translate-x-[85px] ${entry.type === 'credit' || entry.type === 'debit' ? 'text-red-400' : 'text-[var(--text-main)]'}">
                         ${formatter.format(entry.amount)}
                     </div>
-                    <button onclick="window.removeEntry(${entry.id})" class="text-gray-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all p-2">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                    </button>
+                    <div class="absolute right-0 flex items-center gap-1 sm:gap-2 transition-all duration-300 transform opacity-100 lg:opacity-0 lg:translate-x-4 lg:group-hover/full:opacity-100 lg:group-hover/full:translate-x-0">
+                        <button onclick="window.toggleHideEntry(${entry.id})" class="text-gray-500 hover:text-[var(--accent-primary)] transition-all p-2" title="${isHidden ? 'Show in Power' : 'Hide from Power'}">
+                            <iconify-icon icon="${isHidden ? 'material-symbols:visibility-off-outline-rounded' : 'material-symbols:visibility-outline-rounded'}" class="text-xl"></iconify-icon>
+                        </button>
+                        <button onclick="window.removeEntry(${entry.id})" class="text-gray-500 hover:text-red-400 transition-all p-2">
+                             <iconify-icon icon="material-symbols:close-rounded" class="text-xl"></iconify-icon>
+                        </button>
+                    </div>
                 </div>
             </div>
         `;

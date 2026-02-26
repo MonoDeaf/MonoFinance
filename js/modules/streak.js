@@ -1,4 +1,5 @@
 import { financeState, saveState } from '../state.js';
+import { showToast } from './toast.js';
 
 export function updateStreakUI(updateDashboardCallback) {
     const container = document.getElementById('streak-card-container');
@@ -48,15 +49,15 @@ export function updateStreakUI(updateDashboardCallback) {
                         </div>
                     </div>
                     <div id="daily-asset-fields" class="space-y-3">
-                        <input type="text" id="daily-label" class="w-full bg-black border border-white/5 rounded-lg p-2.5 text-xs outline-none focus:border-[var(--accent-primary)]/50 text-white" placeholder="Details (e.g. Dividend)">
+                        <input type="text" id="daily-label" class="w-full bg-[var(--bg-main)] border border-[var(--border-main)] rounded-lg p-2.5 text-xs outline-none focus:border-[var(--accent-primary)]/50 text-[var(--text-main)]" placeholder="Details (e.g. Dividend)">
                         <div class="grid grid-cols-2 gap-2">
-                            <select id="daily-category" class="bg-black border border-white/5 rounded-lg p-2.5 text-[10px] outline-none text-white">
+                            <select id="daily-category" class="bg-[var(--bg-main)] border border-[var(--border-main)] rounded-lg p-2.5 text-[10px] outline-none text-[var(--text-main)]">
                                 <option value="savings">Savings</option>
                                 <option value="stocks">Stocks</option>
                                 <option value="crypto">Crypto</option>
                                 <option value="debit">Spent</option>
                             </select>
-                            <input type="number" id="daily-amount" step="0.01" class="bg-black border border-white/5 rounded-lg p-2.5 text-xs outline-none text-white" placeholder="0.00">
+                            <input type="number" id="daily-amount" step="0.01" class="bg-[var(--bg-main)] border border-[var(--border-main)] rounded-lg p-2.5 text-xs outline-none text-[var(--text-main)]" placeholder="0.00">
                         </div>
                     </div>
                     <button type="submit" class="w-full py-3 bg-[var(--accent-primary)] text-[var(--btn-text)] font-bold text-[10px] uppercase rounded-xl hover:opacity-90 transition-all transform active:scale-95">Complete</button>
@@ -105,6 +106,7 @@ export function updateStreakUI(updateDashboardCallback) {
             financeState.dailyUpdateViewActive = false;
             saveState();
             updateDashboardCallback();
+            showToast('Daily log completed successfully');
         };
     } else {
         container.innerHTML = `

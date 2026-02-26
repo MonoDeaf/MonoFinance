@@ -66,6 +66,14 @@ export const AuthView = () => `
                     </form>
                     
                     <div id="auth-error" class="mt-8 text-red-400 text-xs font-mono text-center h-4 opacity-0 transition-opacity tracking-tight"></div>
+
+                    <!-- PWA Install for Auth Screen -->
+                    <div id="auth-install-container" class="mt-12 hidden">
+                        <button id="auth-install-pwa-btn" class="w-full h-12 border border-dashed border-white/20 rounded-[0.25rem] flex items-center justify-center gap-3 text-gray-500 hover:text-white hover:border-white/40 transition-all active:scale-95 group">
+                            <iconify-icon icon="material-symbols:download-for-offline-outline-rounded" class="text-lg"></iconify-icon>
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Install Mono App</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

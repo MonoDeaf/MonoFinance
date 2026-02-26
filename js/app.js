@@ -25,6 +25,7 @@ import { initSidebarLogic } from './modules/sidebar.js';
 import { updateStreakUI } from './modules/streak.js';
 import { initActionHandlers } from './modules/actions.js';
 import { initWidgetBgControls } from './modules/background.js';
+import { showToast } from './modules/toast.js';
 
 let isInitialized = false;
 let currentUser = null;
@@ -118,9 +119,11 @@ window.navigateToTab = (tab) => {
 
 window.toggleTheme = () => {
     financeState.profile.theme = financeState.profile.theme === 'light' ? 'dark' : 'light';
+    const isLight = financeState.profile.theme === 'light';
     applyTheme();
     import('./state.js').then(m => m.saveState());
     renderDashboard();
+    showToast(isLight ? 'Switched to Light Mode' : 'Switched to Dark Mode');
 };
 
 function applyTheme() {
@@ -141,6 +144,7 @@ window.saveProfileSettings = (e) => {
     };
     import('./state.js').then(m => m.saveState());
     renderDashboard();
+    showToast('Profile settings saved');
 };
 
 window.updateProfileAvatar = (e) => {
@@ -151,6 +155,7 @@ window.updateProfileAvatar = (e) => {
         financeState.profile.avatarUrl = event.target.result;
         import('./state.js').then(m => m.saveState());
         renderDashboard();
+        showToast('Identity avatar updated');
     };
     reader.readAsDataURL(file);
 };
@@ -174,8 +179,34 @@ function renderApp() {
         root.innerHTML = AuthView();
         // Reset state for when they log back in
         isLoginMode = true; 
+
+        // Handle PWA button in AuthView
+        if (deferredPrompt) {
+            const authInstallContainer = document.getElementById('auth-install-container');
+            if (authInstallContainer) authInstallContainer.classList.remove('hidden');
+            
+            const authInstallBtn = document.getElementById('auth-install-pwa-btn');
+            if (authInstallBtn) {
+                authInstallBtn.addEventListener('click', handlePwaInstall);
+            }
+        }
     } else {
         renderDashboard(root);
+    }
+}
+
+async function handlePwaInstall() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+        }
+        deferredPrompt = null;
+        
+        // Hide all install buttons
+        document.getElementById('pwa-install-container')?.classList.add('hidden');
+        document.getElementById('auth-install-container')?.classList.add('hidden');
     }
 }
 
@@ -280,18 +311,7 @@ function renderDashboard(root) {
     // PWA Install Click Handler
     const installBtnAction = document.getElementById('install-pwa-btn');
     if (installBtnAction) {
-        installBtnAction.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
-                }
-                deferredPrompt = null;
-                const container = document.getElementById('pwa-install-container');
-                if (container) container.classList.add('hidden');
-            }
-        });
+        installBtnAction.addEventListener('click', handlePwaInstall);
     }
     initWidgetBgControls(renderDashboard);
     initActionHandlers(renderDashboard);
@@ -444,6 +464,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    const installBtn = document.getElementById('pwa-install-container');
-    if (installBtn) installBtn.classList.remove('hidden');
+    
+    // Show install buttons if containers are currently in the DOM
+    const sidebarInstallBtn = document.getElementById('pwa-install-container');
+    if (sidebarInstallBtn) sidebarInstallBtn.classList.remove('hidden');
+    
+    const authInstallBtn = document.getElementById('auth-install-container');
+    if (authInstallBtn) authInstallBtn.classList.remove('hidden');
 });

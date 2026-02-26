@@ -132,6 +132,6 @@ export function updateChart(totals) {
         const goal = 50000;
         // Clamp to 0 if negative for visual progress
         const growth = Math.max(0, (netPower / goal * 100)).toFixed(1);
-        growthBadge.innerHTML = `<span class="opacity-70 mr-1.5 text-[10px] font-black tracking-tight">Money Power Goal</span>${growth}%`;
+        growthBadge.innerHTML = `<span class="opacity-70 mr-1.5 text-[10px] font-black tracking-tight">Money Goal</span>${growth}%`;
     }
 }

@@ -25,7 +25,7 @@ export const MoneyPowerCard = () => {
     }
 
     return `
-    <div class="card !p-2 lg:!p-8 flex flex-col h-full relative overflow-hidden group">
+    <div class="card !p-2 lg:!p-8 flex flex-col h-full relative overflow-hidden group/card">
         <!-- Background Splash -->
         <div id="money-power-bg" class="absolute inset-0 z-0 pointer-events-none opacity-40 transition-all duration-500">
             ${bgContent}
@@ -40,7 +40,7 @@ export const MoneyPowerCard = () => {
                 </div>
                 
                 <!-- Background Controls -->
-                <div class="flex items-center gap-2 bg-black/40 backdrop-blur-md p-1.5 rounded-full border border-white/10 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity overflow-x-auto max-w-full scrollbar-hide">
+                <div class="flex items-center gap-2 bg-black/40 backdrop-blur-md p-1.5 rounded-full border border-white/10 opacity-100 lg:opacity-0 lg:group-hover/card:opacity-100 transition-opacity overflow-x-auto max-w-full scrollbar-hide">
                     <button onclick="window.setWidgetBg('none')" class="w-5 h-5 rounded-full bg-zinc-800 border border-white/20 hover:border-white/60 transition-colors shrink-0" title="Default"></button>
                     
                     ${PRESET_IMAGES.map(img => `
@@ -98,7 +98,7 @@ export const MoneyPowerCard = () => {
                     <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         <h2 class="text-2xl font-bold tracking-tight text-center leading-tight">Money Power</h2>
                         <div id="growth-badge" class="mt-2 px-4 py-1 bg-[#ccccfa] text-[#030030] border-none rounded-full text-[12px] font-black shadow-lg shadow-[#ccccfa]/10 uppercase tracking-tight">
-                            Money Power Goal 0%
+                            Money Goal 0%
                         </div>
                     </div>
                 </div>

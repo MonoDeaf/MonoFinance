@@ -1,10 +1,12 @@
 import { financeState, saveState } from '../state.js';
+import { showToast } from './toast.js';
 
 export function initWidgetBgControls(renderDashboardCallback) {
     window.setWidgetBg = (type) => {
         financeState.widgetBgType = type;
         saveState();
         renderDashboardCallback();
+        showToast('Background updated');
     };
 
     window.uploadWidgetBg = (e) => {
@@ -17,6 +19,7 @@ export function initWidgetBgControls(renderDashboardCallback) {
             financeState.customBgData = event.target.result;
             saveState();
             renderDashboardCallback();
+            showToast('Custom background uploaded');
         };
         reader.readAsDataURL(file);
     };

@@ -1,4 +1,5 @@
 import { financeState, saveState, SERVICE_ICONS } from '../state.js';
+import { showToast } from './toast.js';
 
 let currentCalendarDate = new Date();
 let selectedDay = null;
@@ -37,6 +38,7 @@ export function renderCalendarGrid(updateCallback) {
         renderCalendarGrid(updateCallback);
         openSubModal(day, updateCallback);
         updateCallback();
+        showToast('Subscription removed');
     };
 
     const year = currentCalendarDate.getFullYear();
@@ -223,6 +225,7 @@ function openSubModal(day, updateCallback) {
             renderCalendarGrid(updateCallback);
             openSubModal(subDay, updateCallback);
             updateCallback();
+            showToast('Subscription scheduled');
         }
     });
 }

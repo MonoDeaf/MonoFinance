@@ -1,4 +1,5 @@
 import { financeState, saveState } from '../state.js';
+import { showToast } from './toast.js';
 
 export function initActionHandlers(renderDashboardCallback) {
     window.toggleActionForm = () => {
@@ -16,18 +17,22 @@ export function initActionHandlers(renderDashboardCallback) {
             type: form.type.value,
             title: form.title.value,
             url: form.type.value === 'url' ? form.url.value : null,
-            amount: parseFloat(form.amount.value) || 0
+            amountType: form.amountType ? form.amountType.value : 'fixed',
+            amount: parseFloat(form.amount.value) || 0,
+            impact: form.impact ? form.impact.value : 'deduction'
         };
 
         financeState.actions.push(action);
         saveState();
         renderDashboardCallback();
+        showToast('Action button created');
     };
 
     window.deleteAction = (id) => {
         financeState.actions = financeState.actions.filter(a => a.id !== id);
         saveState();
         renderDashboardCallback();
+        showToast('Quick Action deleted');
     };
 
     window.triggerAction = (url, id) => {
@@ -56,17 +61,31 @@ export function initActionHandlers(renderDashboardCallback) {
         const action = financeState.actions.find(a => a.id === id);
         if (!action) return;
 
-        // Add to entries as a debit/expense
+        let finalAmount = action.amount || 0;
+        if (action.amountType === 'variable') {
+            const varInput = document.getElementById('variable-amount-input');
+            if (varInput) {
+                finalAmount = parseFloat(varInput.value) || 0;
+            }
+        }
+
+        if (finalAmount <= 0 && action.amountType === 'variable') {
+            alert('Please enter a valid amount.');
+            return;
+        }
+
+        // Add to entries
+        // Deduction = debit, Addition = savings (generic asset)
         financeState.entries.unshift({
             id: Date.now(),
-            type: 'debit',
+            type: action.impact === 'addition' ? 'savings' : 'debit',
             label: action.title,
-            amount: action.amount || 0,
+            amount: finalAmount,
             date: Date.now()
         });
 
-        // Reset selection or handle feedback? For now just re-render to show entry in ledger
         saveState();
         renderDashboardCallback();
+        showToast('Action logged successfully');
     };
 }
